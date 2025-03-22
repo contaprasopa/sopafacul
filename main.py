@@ -12,10 +12,8 @@ st.set_page_config(
 
 # Inicializa o Firebase (apenas uma vez)
 if not firebase_admin._apps:
-    cred_dict = st.secrets["firebase"] 
-    cred = credentials.Certificate(cred_dict)
+    cred = credentials.Certificate("sopa.json")
     firebase_admin.initialize_app(cred)
-db = firestore.client()
 db = firestore.client()
 
 # Gerenciamento de navegação usando session_state
@@ -42,4 +40,4 @@ elif st.session_state['pagina'] == "atividades":
     atividades_app.app(db)
 elif st.session_state['pagina'] == "periodos":
     st.title("Página de Períodos - Em breve")
-    st.write("Aqui você poderera gerenciar os períodos, cadastrar matérias e registrar provas")
+    st.write("Aqui você poderera gerenciar os períodos, cadastrar matérias e registrar provas.")
