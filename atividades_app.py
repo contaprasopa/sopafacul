@@ -1,5 +1,7 @@
 import streamlit as st
 from datetime import datetime, date
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 def app(db):
     st.title("Coisas que a lindinha tem que fazer")
