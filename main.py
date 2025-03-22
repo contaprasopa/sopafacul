@@ -34,7 +34,7 @@ if st.session_state['pagina'] == "inicio":
     st.title("Oiiiii amorzinhoo")
     st.write("Eu te amo mais que tudo nesse mundo! ❤️")
 elif st.session_state['pagina'] == "atividades":
-    atividades_app.app(db)
+    atividades_app.app()
 elif st.session_state['pagina'] == "periodos":
     st.title("Página de Períodos - Em breve")
     st.write("Aqui você poderera gerenciar os períodos, cadastrar matérias e registrar provas.")
