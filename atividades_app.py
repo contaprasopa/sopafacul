@@ -3,7 +3,7 @@ from datetime import datetime, date
 import firebase_admin
 from firebase_admin import credentials, firestore
 
-def app(db):
+def app():
     st.title("Coisas que a lindinha tem que fazer")
     db = firestore.Client.from_service_account_json("sopa.json")
 
