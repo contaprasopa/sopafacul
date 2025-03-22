@@ -3,6 +3,8 @@ from datetime import datetime, date
 
 def app(db):
     st.title("Coisas que a lindinha tem que fazer")
+    db = firestore.Client.from_service_account_json("sopa.json")
+
 
     # --- Recupera e organiza as atividades do Firestore ---
     atividades_ref = db.collection("atividades").order_by("data")
