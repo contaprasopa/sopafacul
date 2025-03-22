@@ -5,7 +5,7 @@ import atividades_app  # importa o módulo com a página de atividades
 
 # Configuração inicial da página
 st.set_page_config(
-    page_title="Organizador de Estudos",
+    page_title="Sopinha Linda",
     page_icon="🎓",
     layout="wide"
 )
