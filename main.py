@@ -11,10 +11,7 @@ st.set_page_config(
 )
 
 # Inicializa o Firebase (apenas uma vez)
-if not firebase_admin._apps:
-    cred = credentials.Certificate("sopa.json")
-    firebase_admin.initialize_app(cred)
-db = firestore.client()
+db = firestore.Client.from_service_account_json("sopa.json")
 
 # Gerenciamento de navegação usando session_state
 if 'pagina' not in st.session_state:
