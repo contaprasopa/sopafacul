@@ -6,7 +6,8 @@ from firebase_admin import credentials, firestore
 def app():
     st.title("Coisas que a lindinha tem que fazer")
     cred = credentials.Certificate('sopa.json')
-    db = firebase_admin.initialize_app(cred)
+    firebase_admin.initialize_app(cred)
+    db = firestore.client()
 
     # --- Recupera e organiza as atividades do Firestore ---
     atividades_ref = db.collection("atividades").order_by("data")
