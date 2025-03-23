@@ -10,9 +10,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Inicializa o Firebase (apenas uma vez)
-db = firestore.Client.from_service_account_json("sopa.json")
-
 # Gerenciamento de navegação usando session_state
 if 'pagina' not in st.session_state:
     st.session_state['pagina'] = 'inicio'
