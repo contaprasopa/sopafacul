@@ -35,4 +35,4 @@ elif st.session_state['pagina'] == "atividades":
     atividades_app.app()
 elif st.session_state['pagina'] == "periodos":
     st.title("Página de Períodos - Em breve")
-    st.write("Aqui você poderera gerenciar os períodos, cadastrar matérias e registrar provas.")
+    st.write("Aqui você podera gerenciar os períodos, cadastrar matérias e registrar provas.")
