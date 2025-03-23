@@ -5,7 +5,7 @@ from firebase_admin import credentials, firestore
 
 def app():
     st.title("Coisas que a lindinha tem que fazer")
-    db = firestore.Client.from_service_account_json("firestore-key.json")
+    db = firestore.Client.from_service_account_json("sopa.json")
 
     atividades_ref = db.collection("atividades").order_by("data")
     docs = atividades_ref.stream()
