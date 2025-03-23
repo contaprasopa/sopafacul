@@ -28,7 +28,7 @@ if st.sidebar.button("🎓 Períodos"):
 
 # Renderiza o conteúdo conforme a página selecionada
 if st.session_state['pagina'] == "inicio":
-    st.title("Oiiiii amorzinhoo")
+    st.title("Stop cryinggggg")
     st.write("Eu te amo mais que tudo nesse mundo!!! ❤️")
     st.image("nos.png", use_container_width=True)
 elif st.session_state['pagina'] == "atividades":
