@@ -5,8 +5,22 @@ from firebase_admin import credentials, firestore
 
 def app():
     st.title("Coisas que a lindinha tem que fazer")
-    cred = credentials.Certificate("sopa.json")
-    firebase_admin.initialize_app(cred)
+
+    if not firebase_admin._apps:
+        cred = credentials.Certificate({
+            "type": st.secrets["firebase"]["type"],
+            "project_id": st.secrets["firebase"]["project_id"],
+            "private_key_id": st.secrets["firebase"]["private_key_id"],
+            "private_key": st.secrets["firebase"]["private_key"].replace("\\n", "\n"),
+            "client_email": st.secrets["firebase"]["client_email"],
+            "client_id": st.secrets["firebase"]["client_id"],
+            "auth_uri": st.secrets["firebase"]["auth_uri"],
+            "token_uri": st.secrets["firebase"]["token_uri"],
+            "auth_provider_x509_cert_url": st.secrets["firebase"]["auth_provider_x509_cert_url"],
+            "client_x509_cert_url": st.secrets["firebase"]["client_x509_cert_url"],
+            "universe_domain": st.secrets["firebase"]["universe_domain"]
+        })
+        firebase_admin.initialize_app(cred)
 
     db = firestore.client()
 
@@ -19,7 +33,7 @@ def app():
 
     for doc in docs:
         atividade = doc.to_dict()
-        atividade["id"] = doc.id  # Guarda o ID para exclusão
+        atividade["id"] = doc.id
         if atividade["tipo"] == "prova":
             atividades_prova.append(atividade)
         elif atividade["tipo"] == "atividade":
@@ -31,7 +45,6 @@ def app():
     atividades_atividade.sort(key=lambda x: x["data"])
     atividades_revisao.sort(key=lambda x: x["data"])
 
-    # --- Define as funções de diálogo para adicionar novas atividades ---
     @st.dialog("Nova Prova")
     def add_prova_dialog():
         data_input = st.date_input("Data", date.today())
@@ -87,12 +100,10 @@ def app():
             except Exception as e:
                 st.error(f"Erro ao adicionar revisão: {e}")
 
-    # --- Exibe as atividades em três colunas com o botão de adição (símbolo "+") ---
     col_prova, col_atividade, col_revisao = st.columns(3)
 
     def exibir_coluna(col, lista, titulo, add_dialog_func, com_valor):
         with col:
-            # Cabeçalho com título e botão de adicionar ("+")
             header_title, header_button = st.columns([6.3, 1])
             header_title.markdown(f"### {titulo}")
             if header_button.button(":material/add:", key=f"btn_{titulo}"):
@@ -100,7 +111,6 @@ def app():
             st.markdown("---")
 
             if com_valor:
-                # Para provas e atividades: exibe colunas para Data, Valor e Nome
                 col_date, col_valor, col_nome, col_action = st.columns([2.4, 1.4, 5.5, 1.6])
                 col_date.markdown("**Data**")
                 col_valor.markdown("**Valor**")
@@ -119,7 +129,6 @@ def app():
                         except Exception as e:
                             st.error(f"Erro ao remover atividade: {e}")
             else:
-                # Para revisões: exibe apenas Data e Nome
                 col_date, col_nome, col_action = st.columns([2.4, 6.8, 1.6])
                 col_date.markdown("**Data**")
                 col_nome.markdown("**Nome**")
