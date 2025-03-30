@@ -1,3 +1,4 @@
 streamlit
+streamlit-quill
 firebase-admin
 xhtml2pdf
