@@ -9,6 +9,22 @@ import resumos
 
 st.set_page_config(page_title="Site Da Sopinha", page_icon="🎓", layout="wide")
 
+senha_correta = st.secrets["auth"]["senha"]
+
+if 'autenticado' not in st.session_state:
+    st.session_state['autenticado'] = False
+
+if not st.session_state['autenticado']:
+    st.title("🔐 Área Protegida")
+    senha = st.text_input("Digite a senha para acessar o site:", type="password")
+    if senha == senha_correta:
+        st.session_state['autenticado'] = True
+        st.success("Senha correta! Bem-vindo(a) 💖")
+        st.experimental_rerun()
+    elif senha:
+        st.error("Senha incorreta. Tente novamente.")
+    st.stop()
+
 # Inicializa Firebase uma única vez
 if not firebase_admin._apps:
     cred = credentials.Certificate({
