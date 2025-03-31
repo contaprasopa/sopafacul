@@ -184,7 +184,7 @@ def gerar_pdf(titulo, html_conteudo):
                 font-family: Arial, sans-serif;
                 font-size: 18px;  /* Aumente esse valor para uma fonte maior */
                 line-height: 1.6;
-                padding: 20px;
+                padding: 5px;
             }}
             h1 {{
                 font-size: 26px;
