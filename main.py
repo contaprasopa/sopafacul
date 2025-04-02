@@ -66,8 +66,7 @@ if st.sidebar.button("📓 Resumos"):
 pagina = st.session_state['pagina']
 
 if pagina == "inicio":
-    st.title("Oiiiii amorzinho")
-    st.write("Eu te amo mais que tudo nesse mundo!!! ❤️")
+    st.title("Site da mais linda desse mundo ❤️")
     st.image("nos.png", use_container_width=True)
 
 elif pagina == "atividades":
