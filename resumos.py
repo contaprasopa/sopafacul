@@ -182,6 +182,17 @@ def gerar_pdf(titulo, html_conteudo):
     <html>
     <head>
         <meta charset="utf-8">
+        <style>
+             body {{
+                 font-family: Arial, sans-serif;
+                 font-size: 18px;  /* Aumente esse valor para uma fonte maior */
+                 line-height: 1.3;
+                 padding: 2px;
+             }}
+             h1 {{
+                 font-size: 26px;
+             }}
+         </style>
     </head>
     <body>
         <h1>{titulo}</h1>
