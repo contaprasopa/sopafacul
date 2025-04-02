@@ -18,18 +18,21 @@ def app(db):
 
     # Cache de períodos e matérias
     periodos_ref = db.collection("periodo")
-    if "periodos_docs" not in st.session_state:
-        periodos_docs = list(periodos_ref.stream())
-        st.session_state["periodos_docs"] = periodos_docs
 
+    if "periodos_docs" not in st.session_state:
+        st.session_state["periodos_docs"] = list(periodos_ref.stream())
+
+    periodos_docs = st.session_state["periodos_docs"]
+
+    # Garante que materias_dict está presente e sincronizado
+    if "materias_dict" not in st.session_state:
         materias_dict = {}
         for doc in periodos_docs:
             materias_ref = periodos_ref.document(doc.id).collection("materias")
             materias_dict[doc.id] = [m.id for m in materias_ref.stream()]
         st.session_state["materias_dict"] = materias_dict
-    else:
-        periodos_docs = st.session_state["periodos_docs"]
-        materias_dict = st.session_state["materias_dict"]
+
+    materias_dict = st.session_state["materias_dict"]
 
     periodos_options = [doc.id for doc in periodos_docs]
 
@@ -179,17 +182,6 @@ def gerar_pdf(titulo, html_conteudo):
     <html>
     <head>
         <meta charset="utf-8">
-         <style>
-            body {{
-                font-family: Arial, sans-serif;
-                font-size: 18px;  /* Aumente esse valor para uma fonte maior */
-                line-height: 1.3;
-                padding: 2px;
-            }}
-            h1 {{
-                font-size: 26px;
-            }}
-        </style>
     </head>
     <body>
         <h1>{titulo}</h1>
