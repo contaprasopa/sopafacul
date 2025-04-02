@@ -2,3 +2,4 @@ streamlit
 streamlit-quill
 firebase-admin
 xhtml2pdf
+streamlit_calendar
