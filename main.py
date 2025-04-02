@@ -5,7 +5,6 @@ import atividades_app
 import periodos_app
 import periodo
 import materia
-import resumos
 
 st.set_page_config(page_title="Site Da Sopinha", page_icon="🎓", layout="wide")
 
@@ -59,8 +58,6 @@ if st.sidebar.button("📝 Atividades"):
     mudar_pagina("atividades")
 if st.sidebar.button("🎓 Períodos"):
     mudar_pagina("periodos")
-if st.sidebar.button("📓 Resumos"):
-    mudar_pagina("resumos")
 
 # Lógica de renderização por página
 pagina = st.session_state['pagina']
@@ -80,12 +77,3 @@ elif pagina == "periodo_detalhe" and "periodo_ativo" in st.session_state:
 
 elif pagina == "materia_detalhe" and "periodo_ativo" in st.session_state and "materia_ativa" in st.session_state:
     materia.app(db, st.session_state["periodo_ativo"], st.session_state["materia_ativa"])
-
-elif pagina == "resumos":
-    resumos.app(db)
-
-elif pagina == "editar_resumo" and "resumo_id" in st.session_state:
-    resumos.editar_resumo(db, st.session_state["resumo_id"])
-
-elif pagina == "ver_resumo" and "resumo_id" in st.session_state:
-    resumos.ver_resumo(db, st.session_state["resumo_id"])
