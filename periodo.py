@@ -11,12 +11,10 @@ def arredondar_personalizado(valor):
     else:
         return float(inteiro) + 1.0
 
-
 def app(db, periodo_id):
     periodo_ref = db.collection("periodo").document(periodo_id)
     materias_ref = periodo_ref.collection("materias")
 
-    # Título e botão
     col_title, col_btn = st.columns([8, 1])
     with col_title:
         st.title(f"📘 Período {periodo_id}")
@@ -24,14 +22,12 @@ def app(db, periodo_id):
         if st.button("➕ Nova Matéria"):
             criar_materia(db, periodo_id)
 
-    # Carrega todas as matérias em um dicionário
     materias_docs = list(materias_ref.stream())
     materias_dict = {doc.id: doc.to_dict() for doc in materias_docs}
 
     if not materias_dict:
         st.info("Nenhuma matéria adicionada ainda.")
     else:
-        # Cabeçalhos estilo tabela
         st.markdown("---")
         header_cols = st.columns([4, 1, 1, 1])
         header_cols[0].markdown("**📚 Matérias**")
@@ -40,7 +36,6 @@ def app(db, periodo_id):
         header_cols[3].markdown("**🗑️ Excluir**")
         st.markdown("---")
 
-        # Loop pelas matérias
         for nome_materia, materia_data in materias_dict.items():
             provas = materia_data.get("provas", [])
             notas = materia_data.get("notas", {})
@@ -87,7 +82,6 @@ def app(db, periodo_id):
                         st.success(f"Matéria '{nome_materia}' removida!")
                         st.rerun()
 
-
 @st.dialog("➕ Nova Matéria")
 def criar_materia(db, periodo_id):
     nome = st.text_input("Nome da Matéria")
@@ -95,7 +89,6 @@ def criar_materia(db, periodo_id):
 
     provas = []
     st.markdown("**Provas:**")
-
     for i in range(int(num_provas)):
         col_nome = st.text_input(f"Nome da Prova {i+1}", key=f"nome_prova_{i}")
         col_peso, col_bim = st.columns([1, 1])
@@ -105,6 +98,28 @@ def criar_materia(db, periodo_id):
             bimestre = st.selectbox(f"Bimestre {i+1}", ["1º", "2º"], key=f"bimestre_prova_{i}")
         provas.append({"nome": col_nome, "peso": peso, "bimestre": bimestre})
 
+    st.markdown("**Horários por dia da semana:**")
+    dias_semana = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"]
+    horarios = {}
+    for dia in dias_semana:
+        qtd = st.number_input(f"{dia.capitalize()}: Quantos horários diferentes?", min_value=0, max_value=5, step=1, key=f"qtd_{dia}")
+        horarios[dia] = []
+        for i in range(qtd):
+            st.markdown(f"⏰ {dia.capitalize()} - Horário {i+1}")
+            col_ini, col_fim, col_prof = st.columns([1, 1, 2])
+            with col_ini:
+                hora_inicio = st.time_input("Início", key=f"{dia}_{i}_ini")
+            with col_fim:
+                hora_fim = st.time_input("Fim", key=f"{dia}_{i}_fim")
+            with col_prof:
+                professor = st.text_input("Professor", key=f"{dia}_{i}_prof")
+            horarios[dia].append({
+                "inicio": hora_inicio.strftime("%H:%M"),
+                "fim": hora_fim.strftime("%H:%M"),
+                "professor": professor
+            })
+
+    horarios = {dia: horarios[dia] for dia in horarios if horarios[dia]}
 
     st.markdown("**Pesos dos Bimestres:**")
     pesos_bimestres = {}
@@ -118,13 +133,12 @@ def criar_materia(db, periodo_id):
             "provas": provas,
             "pesos_bimestres": pesos_bimestres,
             "notas": {},
+            "horarios": horarios,
         }
-
         materias_ref = db.collection("periodo").document(periodo_id).collection("materias")
         materias_ref.document(nome).set(materia_data)
         st.success("Matéria criada com sucesso!")
         st.rerun()
-
 
 @st.dialog("✏️ Editar Matéria")
 def editar_materia(db, periodo_id, nome_materia, materia_data):
@@ -145,16 +159,44 @@ def editar_materia(db, periodo_id, nome_materia, materia_data):
             peso = st.number_input(f"Peso {i+1}", min_value=0.0, value=peso_default, step=0.1, key=f"editar_peso_prova_{i}")
         with col_bim:
             bimestre = st.selectbox(f"Bimestre {i+1}", ["1º", "2º"], index=["1º", "2º"].index(bimestre_default), key=f"editar_bimestre_prova_{i}")
-        
         provas.append({"nome": nome, "peso": peso, "bimestre": bimestre})
-
-
 
     st.markdown("**Pesos dos Bimestres:**")
     pesos_bimestres = {}
     for b in ["1º", "2º"]:
         valor_bim = materia_data.get("pesos_bimestres", {}).get(b, 1.0)
         pesos_bimestres[b] = st.number_input(f"Peso do {b} Bimestre", min_value=0.0, value=valor_bim, step=0.1, key=f"editar_peso_bim_{b}")
+
+    st.markdown("**Horários por dia da semana:**")
+    dias_semana = ["segunda", "terça", "quarta", "quinta", "sexta", "sábado", "domingo"]
+    horarios_existentes = materia_data.get("horarios", {})
+    horarios = {}
+
+    for dia in dias_semana:
+        horarios_dia = horarios_existentes.get(dia, [])
+        qtd = st.number_input(f"{dia.capitalize()}: Quantos horários diferentes?", min_value=0, max_value=5, value=len(horarios_dia), step=1, key=f"editar_qtd_{dia}")
+        horarios[dia] = []
+        for i in range(qtd):
+            h_default = horarios_dia[i] if i < len(horarios_dia) else {}
+            ini_default = datetime.strptime(h_default.get("inicio", "08:00"), "%H:%M").time()
+            fim_default = datetime.strptime(h_default.get("fim", "09:00"), "%H:%M").time()
+            prof_default = h_default.get("professor", "")
+
+            st.markdown(f"⏰ {dia.capitalize()} - Horário {i+1}")
+            col_ini, col_fim, col_prof = st.columns([1, 1, 2])
+            with col_ini:
+                hora_inicio = st.time_input("Início", value=ini_default, key=f"editar_{dia}_{i}_ini", step=300)
+            with col_fim:
+                hora_fim = st.time_input("Fim", value=fim_default, key=f"editar_{dia}_{i}_fim", step=300)
+            with col_prof:
+                professor = st.text_input("Professor", value=prof_default, key=f"editar_{dia}_{i}_prof")
+            horarios[dia].append({
+                "inicio": hora_inicio.strftime("%H:%M"),
+                "fim": hora_fim.strftime("%H:%M"),
+                "professor": professor
+            })
+
+    horarios = {dia: horarios[dia] for dia in horarios if horarios[dia]}
 
     if st.button("Salvar Alterações"):
         novas_infos = {
@@ -163,8 +205,8 @@ def editar_materia(db, periodo_id, nome_materia, materia_data):
             "provas": provas,
             "pesos_bimestres": pesos_bimestres,
             "notas": materia_data.get("notas", {}),
+            "horarios": horarios,
         }
-
         materias_ref = db.collection("periodo").document(periodo_id).collection("materias")
         if novo_nome != nome_materia:
             materias_ref.document(novo_nome).set(novas_infos)
