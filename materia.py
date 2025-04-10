@@ -15,9 +15,16 @@ def app(db, periodo_id, materia_nome):
     notas = data.get("notas", {})
     pesos_bimestres = data.get("pesos_bimestres", {"1º": 1.0, "2º": 1.0})
 
+    # Select box para escolher o bimestre
+    bimestre_selecionado = st.selectbox("Escolha o bimestre", ["1º", "2º"])
+    st.markdown("---")
+
     total_por_bimestre = {"1º": {"nota": 0.0, "peso": 0.0}, "2º": {"nota": 0.0, "peso": 0.0}}
 
     for i, prova in enumerate(provas):
+        if prova['bimestre'] != bimestre_selecionado:
+            continue  # Pula provas de outros bimestres
+
         col1, col2, col3 = st.columns([4, 2, 2])
 
         with col1:
@@ -39,7 +46,6 @@ def app(db, periodo_id, materia_nome):
                 st.rerun()
             st.markdown("</div>", unsafe_allow_html=True)
 
-
         total_por_bimestre[prova['bimestre']]['nota'] += nota * prova['peso']
         total_por_bimestre[prova['bimestre']]['peso'] += prova['peso']
 
@@ -57,8 +63,7 @@ def app(db, periodo_id, materia_nome):
         bimestre_final["2º"] * pesos_bimestres["2º"]
     ) / (pesos_bimestres["1º"] + pesos_bimestres["2º"])
 
-    st.write(f"1º Bimestre: **{bimestre_final['1º']:.2f}**")
-    st.write(f"2º Bimestre: **{bimestre_final['2º']:.2f}**")
+    # Mostrar apenas a média do bimestre selecionado e a final
+    st.write(f"{bimestre_selecionado} Bimestre: **{bimestre_final[bimestre_selecionado]:.2f}**")
     st.markdown(f"###### Média Final na Disciplina: **{media_final:.2f}**")
-
     st.markdown("---")
