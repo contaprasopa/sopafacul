@@ -15,18 +15,24 @@ def app(db, periodo_id, materia_nome):
     notas = data.get("notas", {})
     pesos_bimestres = data.get("pesos_bimestres", {"1º": 1.0, "2º": 1.0})
 
-    # Select box para escolher o bimestre
-    bimestre_selecionado = st.selectbox("Escolha o bimestre", ["1º", "2º"])
+    # Select box para escolher o bimestre para edição
+    bimestre_selecionado = st.selectbox("Escolha o bimestre para editar as notas", ["1º", "2º"])
     st.markdown("---")
 
     total_por_bimestre = {"1º": {"nota": 0.0, "peso": 0.0}, "2º": {"nota": 0.0, "peso": 0.0}}
 
     for i, prova in enumerate(provas):
+        nota_atual = notas.get(str(i), 0.0)
+
+        # Atualiza soma independentemente do bimestre selecionado
+        total_por_bimestre[prova['bimestre']]['nota'] += nota_atual * prova['peso']
+        total_por_bimestre[prova['bimestre']]['peso'] += prova['peso']
+
+        # Só exibe as provas do bimestre selecionado
         if prova['bimestre'] != bimestre_selecionado:
-            continue  # Pula provas de outros bimestres
+            continue
 
         col1, col2, col3 = st.columns([4, 2, 2])
-
         with col1:
             nome_prova = prova.get("nome", f"Prova {i+1}")
             st.markdown(f"**{nome_prova}**")
@@ -35,8 +41,9 @@ def app(db, periodo_id, materia_nome):
         with col2:
             nota = st.number_input(
                 f"Nota {i+1}", min_value=0.0, max_value=10.0,
-                value=notas.get(str(i), 0.0), step=0.1, key=f"nota_input_{i}"
+                value=nota_atual, step=0.1, key=f"nota_input_{i}"
             )
+
         with col3:
             st.markdown("<div style='margin-top: 28px;'>", unsafe_allow_html=True)
             if st.button("Salvar", key=f"salvar_nota_{i}"):
@@ -46,11 +53,9 @@ def app(db, periodo_id, materia_nome):
                 st.rerun()
             st.markdown("</div>", unsafe_allow_html=True)
 
-        total_por_bimestre[prova['bimestre']]['nota'] += nota * prova['peso']
-        total_por_bimestre[prova['bimestre']]['peso'] += prova['peso']
-
     st.markdown("---")
 
+    # Calcula médias dos bimestres
     bimestre_final = {}
     for bimestre, valores in total_por_bimestre.items():
         if valores['peso'] > 0:
@@ -63,7 +68,9 @@ def app(db, periodo_id, materia_nome):
         bimestre_final["2º"] * pesos_bimestres["2º"]
     ) / (pesos_bimestres["1º"] + pesos_bimestres["2º"])
 
-    # Mostrar apenas a média do bimestre selecionado e a final
-    st.write(f"{bimestre_selecionado} Bimestre: **{bimestre_final[bimestre_selecionado]:.2f}**")
-    st.markdown(f"###### Média Final na Disciplina: **{media_final:.2f}**")
+    # Mostra as médias finais
+    st.subheader("📊 Médias")
+    st.write(f"1º Bimestre: **{bimestre_final['1º']:.2f}**")
+    st.write(f"2º Bimestre: **{bimestre_final['2º']:.2f}**")
+    st.markdown(f"### Média Final na Disciplina: **{media_final:.2f}**")
     st.markdown("---")
