@@ -46,8 +46,8 @@ def app(db, periodo_id, materia_nome):
 
         with col3:
             st.markdown("<div style='margin-top: 28px;'>", unsafe_allow_html=True)
+            notas[str(i)] = nota
             if st.button("Salvar", key=f"salvar_nota_{i}"):
-                notas[str(i)] = nota
                 doc_ref.update({"notas": notas})
                 st.success(f"Nota da Prova {i+1} salva!")
                 st.rerun()
