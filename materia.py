@@ -22,32 +22,37 @@ def app(db, periodo_id, materia_nome):
     total_por_bimestre = {"1º": {"nota": 0.0, "peso": 0.0}, "2º": {"nota": 0.0, "peso": 0.0}}
 
     for i, prova in enumerate(provas):
+        key_nota = f"nota_input_{i}"
         nota_atual = notas.get(str(i), 0.0)
-
-        # Atualiza soma independentemente do bimestre selecionado
-        total_por_bimestre[prova['bimestre']]['nota'] += nota_atual * prova['peso']
+    
+        # Inicializa no session_state se ainda não estiver
+        if key_nota not in st.session_state:
+            st.session_state[key_nota] = nota_atual
+    
+        # Atualiza soma com valor do session_state (simulação ao vivo)
+        nota_simulada = st.session_state[key_nota]
+        total_por_bimestre[prova['bimestre']]['nota'] += nota_simulada * prova['peso']
         total_por_bimestre[prova['bimestre']]['peso'] += prova['peso']
-
-        # Só exibe as provas do bimestre selecionado
+    
         if prova['bimestre'] != bimestre_selecionado:
             continue
-
+    
         col1, col2, col3 = st.columns([4, 2, 2])
         with col1:
             nome_prova = prova.get("nome", f"Prova {i+1}")
             st.markdown(f"**{nome_prova}**")
             st.markdown(f"Bimestre: `{prova['bimestre']}` | Peso: `{prova['peso']}`")
-
+    
         with col2:
-            nota = st.number_input(
+            st.session_state[key_nota] = st.number_input(
                 f"Nota {i+1}", min_value=0.0, max_value=10.0,
-                value=nota_atual, step=0.1, key=f"nota_input_{i}"
+                value=st.session_state[key_nota], step=0.1, key=key_nota
             )
-
+    
         with col3:
             st.markdown("<div style='margin-top: 28px;'>", unsafe_allow_html=True)
-            notas[str(i)] = nota
             if st.button("Salvar", key=f"salvar_nota_{i}"):
+                notas[str(i)] = st.session_state[key_nota]  # Atualiza valor real
                 doc_ref.update({"notas": notas})
                 st.success(f"Nota da Prova {i+1} salva!")
                 st.rerun()
