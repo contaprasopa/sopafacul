@@ -23,33 +23,31 @@ def app(db, periodo_id, materia_nome):
 
     for i, prova in enumerate(provas):
         nota_atual = notas.get(str(i), 0.0)
-        key_nota = f"nota_input_{i}"
-
-        # Inicializa o valor no session_state se ainda não existir
+        key_nota = f"{periodo_id}_{materia_nome}_nota_input_{i}"
+    
         if key_nota not in st.session_state:
             st.session_state[key_nota] = nota_atual
-
+    
         nota_simulada = st.session_state.get(key_nota, nota_atual)
-
-        # Atualiza soma com base na simulação
+    
         total_por_bimestre[prova['bimestre']]['nota'] += nota_simulada * prova['peso']
         total_por_bimestre[prova['bimestre']]['peso'] += prova['peso']
-
+    
         if prova['bimestre'] != bimestre_selecionado:
             continue
-
+    
         col1, col2, col3 = st.columns([4, 2, 2])
         with col1:
             nome_prova = prova.get("nome", f"Prova {i+1}")
             st.markdown(f"**{nome_prova}**")
             st.markdown(f"Bimestre: `{prova['bimestre']}` | Peso: `{prova['peso']}`")
-
+    
         with col2:
             st.number_input(
                 f"Nota {i+1}", min_value=0.0, max_value=10.0,
                 value=nota_simulada, step=0.1, key=key_nota
             )
-
+    
         with col3:
             st.markdown("<div style='margin-top: 28px;'>", unsafe_allow_html=True)
             if st.button("Salvar", key=f"salvar_nota_{i}"):
@@ -58,6 +56,7 @@ def app(db, periodo_id, materia_nome):
                 st.success(f"Nota da Prova {i+1} salva!")
                 st.rerun()
             st.markdown("</div>", unsafe_allow_html=True)
+
 
     st.markdown("---")
 
